@@ -56,7 +56,7 @@
     <button id="checkBtn">Проверить</button>
     <div class="result" id="result"></div>
     <button id="okBtn" class="okBtn" style="display:none;">ОК</button>
-    <button id="restartBtn" class="restartBtn" style="display:none;">Ещё раз</button>
+    <button id="restartBtn" class="restartBtn" style="display:none;">Ещё раз все</button>
     <div class="counter" id="counter"></div>
     <div class="final-result" id="finalResult"></div>
 
@@ -98,6 +98,7 @@
     let index = 0;
     let correct = 0;
     let currentSet = Object.keys(sets)[0];
+    let results = [];
 
     const setSelector = document.getElementById('setSelector');
     const ruWord = document.getElementById('ruWord');
@@ -129,7 +130,9 @@
       shuffledWords = shuffle([...words]);
       index = 0;
       correct = 0;
+      results = Array(shuffledWords.length).fill(null);
       restartBtn.style.display = 'none';
+      if (document.getElementById('repeatMistakesBtn')) document.getElementById('repeatMistakesBtn').style.display = 'none';
       showWord();
     }
 
@@ -138,7 +141,8 @@
     function speak(text) { const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'en-US'; utterance.rate = 0.9; speechSynthesis.speak(utterance); }
 
     function showWord() {
-      ruWord.textContent = shuffledWords[index].ru;
+      const w = shuffledWords[index];
+      ruWord.textContent = w.ru;
       answer.value = '';
       answer.className = '';
       result.textContent = '';
@@ -149,9 +153,8 @@
       answer.style.display = 'block';
       checkBtn.style.display = 'inline-block';
       okBtn.style.display = 'none';
-      restartBtn.style.display = 'none';
       answer.focus();
-      speakBtn.onclick = () => speak(shuffledWords[index].en);
+      speakBtn.onclick = () => speak(w.en);
     }
 
     function checkAnswer() {
@@ -162,11 +165,13 @@
         result.textContent = '✅ Правильно!';
         result.classList.add('correct-effect');
         answer.classList.add('correct');
-        correct++;
-        setTimeout(nextWord, 1500);
+        if (results[index] !== true) correct++;
+        results[index] = true;
+        setTimeout(nextWord, 1000);
       } else {
         result.innerHTML = `❌ Ошибка. Правильно: <span class='wrong-answer'>${correctAnswer}</span>`;
         answer.classList.add('wrong');
+        results[index] = false;
         checkBtn.style.display = 'none';
         okBtn.style.display = 'inline-block';
       }
@@ -176,18 +181,53 @@
       index++;
       checkBtn.disabled = false;
       okBtn.style.display = 'none';
-      if (index < shuffledWords.length) {
-        showWord();
-      } else {
-        ruWord.textContent = '🎉 Готово!';
-        result.textContent = '';
-        answer.style.display = 'none';
-        checkBtn.style.display = 'none';
-        speakBtn.style.display = 'none';
-        finalResult.textContent = `Итог: ${correct} из ${shuffledWords.length}`;
-        counter.textContent = '';
-        restartBtn.style.display = 'inline-block';
+      answer.className = '';
+      if (index < shuffledWords.length) showWord();
+      else showFinalResult();
+    }
+
+    function showFinalResult() {
+      ruWord.textContent = '🎉 Готово!';
+      answer.style.display = 'none';
+      checkBtn.style.display = 'none';
+      speakBtn.style.display = 'none';
+
+      let html = `<b>Итог: ${correct} из ${shuffledWords.length}</b><br>`;
+      shuffledWords.forEach((w, i) => {
+        const mark = results[i] ? '✅' : '❌';
+        const color = results[i] ? 'green' : 'red';
+        html += `<span style="color:${color}">${mark} ${w.ru} → ${w.en}</span><br>`;
+      });
+      finalResult.innerHTML = html;
+
+      counter.textContent = '';
+      restartBtn.style.display = 'inline-block';
+      restartBtn.textContent = 'Ещё раз все';
+
+      if (results.includes(false)) {
+        let btn = document.getElementById('repeatMistakesBtn');
+        if (!btn) {
+          btn = document.createElement('button');
+          btn.id = 'repeatMistakesBtn';
+          btn.textContent = 'Повторить ошибки';
+          btn.className = 'restartBtn';
+          btn.style.background = '#f59e0b';
+          btn.onclick = repeatMistakes;
+          restartBtn.parentNode.insertBefore(btn, restartBtn.nextSibling);
+        }
+        btn.style.display = 'inline-block';
       }
+    }
+
+    function repeatMistakes() {
+      shuffledWords = shuffledWords.filter((_, i) => results[i] === false);
+      results = Array(shuffledWords.length).fill(null);
+      index = 0;
+      correct = 0;
+      finalResult.textContent = '';
+      restartBtn.style.display = 'none';
+      document.getElementById('repeatMistakesBtn').style.display = 'none';
+      showWord();
     }
 
     restartBtn.onclick = () => loadSet(currentSet);
@@ -196,9 +236,9 @@
 
     answer.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
-        if (checkBtn.style.display !== 'none') { checkAnswer(); }
-        else if (okBtn.style.display !== 'none') { nextWord(); }
-        else if (restartBtn.style.display !== 'none') { loadSet(currentSet); }
+        if (checkBtn.style.display !== 'none') checkAnswer();
+        else if (okBtn.style.display !== 'none') nextWord();
+        else if (restartBtn.style.display !== 'none') loadSet(currentSet);
       }
     });
 
