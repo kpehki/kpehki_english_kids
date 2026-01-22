@@ -72,6 +72,13 @@
 
   <script>
     const sets = {
+      "Еда": [
+        { ru: "бургеры", en: "burgers" },
+        { ru: "чипсы", en: "chips" },
+        { ru: "яблоки", en: "apples" },
+        { ru: "сэндвичи", en: "sandwiches" },
+        { ru: "бананы", en: "bananas" }
+      ],
       "Цифры": [
         { ru: "один", en: "one" },
         { ru: "два", en: "two" },
@@ -84,12 +91,7 @@
         { ru: "девять", en: "nine" },
         { ru: "десять", en: "ten" }
       ],
-      "Еда": [
-        { ru: "бургеры", en: "burgers" },
-        { ru: "чипсы", en: "chips" },
-        { ru: "яблоки", en: "apples" },
-        { ru: "сэндвичи", en: "sandwiches" },
-        { ru: "бананы", en: "bananas" }
+      "Собрать свой словарь": [
       ]
     };
 
@@ -133,8 +135,21 @@
       results = Array(shuffledWords.length).fill(null);
       restartBtn.style.display = 'none';
       if (document.getElementById('repeatMistakesBtn')) document.getElementById('repeatMistakesBtn').style.display = 'none';
+    
+      if (shuffledWords.length === 0) {
+        ruWord.textContent = "📚 Добавьте слова, чтобы начать тренироваться";
+        answer.style.display = 'none';
+        checkBtn.style.display = 'none';
+        speakBtn.style.display = 'none';
+        finalResult.textContent = '';
+        counter.textContent = '';
+        okBtn.style.display = 'none';
+        return;
+      }
+    
       showWord();
     }
+
 
     setSelector.addEventListener('change', () => loadSet(setSelector.value));
 
