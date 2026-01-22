@@ -165,7 +165,7 @@
         correct++;
         setTimeout(nextWord, 1500);
       } else {
-        result.innerHTML = `❌ Ошибка. <span class='wrong-answer'>${correctAnswer}</span>`;
+        result.innerHTML = `❌ Ошибка. Правильно: <span class='wrong-answer'>${correctAnswer}</span>`;
         answer.classList.add('wrong');
         checkBtn.style.display = 'none';
         okBtn.style.display = 'inline-block';
