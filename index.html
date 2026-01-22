@@ -24,7 +24,7 @@
       text-align: center;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
     h1 { margin-top: 0; font-size: 24px; }
     .word { font-size: 32px; font-weight: bold; }
@@ -33,15 +33,17 @@
     input.wrong { border-color: #f44336; }
     button { padding: 12px 20px; font-size: 16px; border: none; border-radius: 10px; background: #4f46e5; color: white; cursor: pointer; }
     button:disabled { background: #aaa; }
-    .result { font-size: 18px; margin-top: 8px; transition: all 0.3s ease; }
-    .counter, .final-result { font-weight: bold; font-size: 18px; }
+    .result { font-size: 18px; margin-top: 8px; transition: all 0.3s ease; min-height:24px; }
+    .counter, .final-result, #addMsg { font-weight: bold; font-size: 16px; }
     .okBtn, .restartBtn { margin-top: 12px; background: #10b981; }
+    #startBtn { background: #3b82f6; color: white; margin-bottom: 8px; display:none; }
     select { padding: 10px; font-size: 16px; border-radius: 10px; border: 2px solid #ddd; margin-bottom: 12px; }
     details summary { cursor:pointer; font-weight:bold; margin-bottom:8px; }
     details div { display: flex; flex-direction: column; gap: 8px; }
     .correct-effect { color: #4caf50; font-size: 24px; transform: scale(1.2); animation: pop 0.3s; }
     @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1.2); } }
     .wrong-answer { font-weight: bold; font-size: 22px; color: #f44336; }
+    #repeatMistakesBtn { margin-top:8px; background:#f59e0b; }
   </style>
 </head>
 <body>
@@ -49,6 +51,7 @@
     <h1>Введи слово по-английски</h1>
 
     <select id="setSelector"></select>
+    <button id="startBtn">🚀 Старт</button>
 
     <div class="word" id="ruWord"></div>
     <button id="speakBtn">🔊 Произнести слово</button>
@@ -59,6 +62,7 @@
     <button id="restartBtn" class="restartBtn" style="display:none;">Ещё раз все</button>
     <div class="counter" id="counter"></div>
     <div class="final-result" id="finalResult"></div>
+    <div id="addMsg" style="color:#059669; min-height:20px;"></div>
 
     <details>
       <summary>➕ Добавить слово</summary>
@@ -91,8 +95,7 @@
         { ru: "девять", en: "nine" },
         { ru: "десять", en: "ten" }
       ],
-      "Собрать свой словарь": [
-      ]
+      "Собрать свой словарь": []
     };
 
     let words = [];
@@ -103,6 +106,7 @@
     let results = [];
 
     const setSelector = document.getElementById('setSelector');
+    const startBtn = document.getElementById('startBtn');
     const ruWord = document.getElementById('ruWord');
     const answer = document.getElementById('answer');
     const result = document.getElementById('result');
@@ -112,6 +116,7 @@
     const speakBtn = document.getElementById('speakBtn');
     const okBtn = document.getElementById('okBtn');
     const restartBtn = document.getElementById('restartBtn');
+    const addMsg = document.getElementById('addMsg');
 
     const newRu = document.getElementById('newRu');
     const newEn = document.getElementById('newEn');
@@ -126,34 +131,56 @@
       setSelector.appendChild(option);
     });
 
-    function loadSet(name) {
-      currentSet = name;
-      words = sets[name];
-      shuffledWords = shuffle([...words]);
+    setSelector.addEventListener('change', () => {
+      currentSet = setSelector.value;
+      words = sets[currentSet];
+      addMsg.textContent = '';
+
+      // Сбрасываем тест
+      shuffledWords = [];
       index = 0;
       correct = 0;
-      results = Array(shuffledWords.length).fill(null);
+      results = [];
+      finalResult.textContent = '';
       restartBtn.style.display = 'none';
+      okBtn.style.display = 'none';
       if (document.getElementById('repeatMistakesBtn')) document.getElementById('repeatMistakesBtn').style.display = 'none';
-    
-      if (shuffledWords.length === 0) {
+
+      if (words.length === 0) {
         ruWord.textContent = "📚 Добавьте слова, чтобы начать тренироваться";
         answer.style.display = 'none';
         checkBtn.style.display = 'none';
         speakBtn.style.display = 'none';
-        finalResult.textContent = '';
+        startBtn.style.display = 'none';
         counter.textContent = '';
-        okBtn.style.display = 'none';
-        return;
+      } else {
+        startBtn.style.display = 'none';
+        shuffledWords = shuffle([...words]);
+        results = Array(shuffledWords.length).fill(null);
+        showWord();
       }
-    
+    });
+
+    startBtn.onclick = () => {
+      if (words.length === 0) return;
+      startBtn.style.display = 'none';
+      shuffledWords = shuffle([...words]);
+      index = 0;
+      correct = 0;
+      results = Array(shuffledWords.length).fill(null);
+      finalResult.textContent = '';
+      addMsg.textContent = '';
+      restartBtn.style.display = 'none';
+      if (document.getElementById('repeatMistakesBtn')) document.getElementById('repeatMistakesBtn').style.display = 'none';
       showWord();
+    };
+
+    function speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.9;
+      speechSynthesis.speak(utterance);
     }
-
-
-    setSelector.addEventListener('change', () => loadSet(setSelector.value));
-
-    function speak(text) { const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'en-US'; utterance.rate = 0.9; speechSynthesis.speak(utterance); }
 
     function showWord() {
       const w = shuffledWords[index];
@@ -162,7 +189,13 @@
       answer.className = '';
       result.textContent = '';
       result.className = 'result';
-      counter.textContent = `Правильно: ${correct} / ${shuffledWords.length}`;
+
+      if (shuffledWords.length > 0) {
+        counter.textContent = `Правильно: ${correct} / ${shuffledWords.length}`;
+      } else {
+        counter.textContent = '';
+      }
+
       finalResult.textContent = '';
       speakBtn.style.display = 'inline-block';
       answer.style.display = 'block';
@@ -245,7 +278,28 @@
       showWord();
     }
 
-    restartBtn.onclick = () => loadSet(currentSet);
+    addWordBtn.onclick = () => {
+      const ru = newRu.value.trim();
+      const en = newEn.value.trim().toLowerCase();
+      if (!ru || !en) return;
+      
+      words.push({ ru, en });
+      sets[currentSet] = words;
+      shuffledWords = shuffle([...words]);
+      newRu.value = '';
+      newEn.value = '';
+      addMsg.textContent = `Слово "${ru} → ${en}" добавлено ✅`;
+
+      if (words.length === 1) {
+        startBtn.style.display = 'inline-block';
+        ruWord.textContent = '📚 Добавьте слова, чтобы начать тренироваться';
+        answer.style.display = 'none';
+        checkBtn.style.display = 'none';
+        speakBtn.style.display = 'none';
+      }
+    };
+
+    restartBtn.onclick = () => startBtn.click();
     checkBtn.onclick = checkAnswer;
     okBtn.onclick = nextWord;
 
@@ -253,24 +307,28 @@
       if (e.key === 'Enter') {
         if (checkBtn.style.display !== 'none') checkAnswer();
         else if (okBtn.style.display !== 'none') nextWord();
-        else if (restartBtn.style.display !== 'none') loadSet(currentSet);
+        else if (restartBtn.style.display !== 'none') startBtn.click();
       }
     });
 
-    addWordBtn.onclick = () => {
-      const ru = newRu.value.trim();
-      const en = newEn.value.trim().toLowerCase();
-      if (!ru || !en) return alert('Заполни оба поля');
-      words.push({ ru, en });
-      sets[setSelector.value] = words;
-      shuffledWords = shuffle([...words]);
-      newRu.value = '';
-      newEn.value = '';
-      alert('Слово добавлено 👍');
-      counter.textContent = `Правильно: ${correct} / ${shuffledWords.length}`;
-    };
+    // стартовый набор
+    currentSet = Object.keys(sets)[0];
+    words = sets[currentSet];
+    setSelector.value = currentSet;
 
-    loadSet(Object.keys(sets)[0]);
+    if (words.length === 0) {
+      ruWord.textContent = "📚 Добавьте слова, чтобы начать тренироваться";
+      answer.style.display = 'none';
+      checkBtn.style.display = 'none';
+      speakBtn.style.display = 'none';
+      counter.textContent = '';
+    } else {
+      shuffledWords = shuffle([...words]);
+      index = 0;
+      correct = 0;
+      results = Array(shuffledWords.length).fill(null);
+      showWord();
+    }
   </script>
 </body>
 </html>
