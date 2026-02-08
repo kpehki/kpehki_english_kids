@@ -136,7 +136,10 @@
     
     const catResult = document.getElementById('catResult');
     const catImg = document.getElementById('catImg');
-
+    function hideCat() {
+      catResult.classList.remove('show');
+    }
+    catResult.addEventListener('click', hideCat);
     const sets = {
       "Еда": [
         { ru: "бургеры", en: "burgers" },
