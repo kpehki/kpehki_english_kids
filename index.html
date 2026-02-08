@@ -78,6 +78,22 @@
     @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1.2); } }
     .wrong-answer { font-weight: bold; font-size: 22px; color: #f44336; }
     #repeatMistakesBtn { margin-top:8px; background:#f59e0b; }
+    @media (max-width: 768px) {
+    #catResult {
+      right: 50%;
+      top: auto;
+      bottom: -260px;
+      transform: translateX(50%);
+      width: 180px;
+      padding: 12px;
+    }
+
+    #catResult.show {
+      bottom: 16px;
+      right: 50%;
+      opacity: 1;
+    }
+  }
   </style>
 </head>
 <body>
