@@ -2,459 +2,124 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Учимся английскому</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spotlight 3 · Учим слова</title>
   <style>
-    #catResult {
-      position: fixed;
-      right: -260px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 220px;
-      background: white;
-      border-radius: 20px;
-      padding: 16px;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-      opacity: 0;
-      transition: all 0.6s ease;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    #catResult.show {
-      right: 24px;
-      opacity: 1;
-    }
-    
-    #catResult img {
-      width: 100%;
-      animation: bounceIn 0.8s ease;
-    }
-    
-    @keyframes bounceIn {
-      0%   { transform: scale(0.5); opacity: 0; }
-      60%  { transform: scale(1.1); opacity: 1; }
-      100% { transform: scale(1); }
-    }
-
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f5f7fb;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .card {
-      background: white;
-      padding: 32px 36px;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    h1 { margin-top: 0; font-size: 24px; }
-    .word { font-size: 32px; font-weight: bold; }
-    input { width: 100%; padding: 14px; font-size: 18px; border-radius: 10px; border: 2px solid #ddd; outline: none; margin-bottom: 12px; }
-    input.correct { border-color: #4caf50; }
-    input.wrong { border-color: #f44336; }
-    button { padding: 12px 20px; font-size: 16px; border: none; border-radius: 10px; background: #4f46e5; color: white; cursor: pointer; }
-    button:disabled { background: #aaa; }
-    .result { font-size: 18px; margin-top: 8px; transition: all 0.3s ease; min-height:24px; }
-    .counter, .final-result, #addMsg { font-weight: bold; font-size: 16px; }
-    .okBtn, .restartBtn { margin-top: 12px; background: #10b981; }
-    #startBtn { background: #3b82f6; color: white; margin-bottom: 8px; display:none; }
-    select { padding: 10px; font-size: 16px; border-radius: 10px; border: 2px solid #ddd; margin-bottom: 12px; }
-    details summary { cursor:pointer; font-weight:bold; margin-bottom:8px; }
-    details div { display: flex; flex-direction: column; gap: 8px; }
-    .correct-effect { color: #4caf50; font-size: 24px; transform: scale(1.2); animation: pop 0.3s; }
-    @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1.2); } }
-    .wrong-answer { font-weight: bold; font-size: 22px; color: #f44336; }
-    #repeatMistakesBtn { margin-top:8px; background:#f59e0b; }
-    @media (max-width: 768px) {
-    #catResult {
-      right: 50%;
-      top: auto;
-      bottom: -260px;
-      transform: translateX(50%);
-      width: 180px;
-      padding: 12px;
-    }
-
-    #catResult.show {
-      bottom: 16px;
-      right: 50%;
-      opacity: 1;
-    }
-  }
+    * { box-sizing: border-box; }
+    body { font-family: 'Trebuchet MS', system-ui, sans-serif; background: #f6f1e7; background-image: radial-gradient(#34365018 1px, transparent 1px); background-size: 22px 22px; color: #202139; margin: 0; padding: 36px 16px; min-height: 100vh; min-height: 100dvh; }
+    main { max-width: 780px; margin: auto; }
+    .card { background: #fffefa; padding: 30px; border: 2px solid #292a43; border-radius: 24px; box-shadow: 6px 7px 0 #292a43; margin-bottom: 26px; animation: arrive .5s both; }
+    header.card { position: relative; overflow: hidden; background: #e9e5ff; }
+    header.card::after { content: 'Aa'; position: absolute; right: 25px; top: 15px; color: #4f46e51a; font-size: 90px; font-weight: 900; transform: rotate(12deg); pointer-events: none; animation: float 5s ease-in-out infinite; }
+    h1 { font-size: clamp(30px, 5vw, 42px); letter-spacing: -.04em; margin: 12px 0; max-width: 480px; position: relative; z-index: 1; } h2 { font-size: 23px; margin-top: 0; }
+    .eyebrow { color: #4f46e5; font-weight: 750; letter-spacing: .08em; font-size: 13px; }
+    .muted { color: #60657b; line-height: 1.6; font-size: 14px; }
+    label { display: block; font-weight: 650; margin-bottom: 8px; }
+    input, select { width: 100%; padding: 13px; font: inherit; border: 2px solid #dedee9; border-radius: 10px; margin-bottom: 16px; background: white; color: inherit; }
+    button { padding: 13px 18px; font: inherit; font-weight: 750; border: 2px solid #292a43; border-radius: 12px; background: #5146d9; color: white; cursor: pointer; box-shadow: 0 3px 0 #292a43; transition: transform .18s, box-shadow .18s, background .18s; }
+    button:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 6px 0 #292a43; }
+    button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+    button.secondary { background: #fffefa; color: #34304d; }
+    button:disabled { opacity: .5; cursor: default; }
+    :focus-visible { outline: 3px solid #978dff; outline-offset: 3px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .word { font-size: clamp(26px, 5vw, 36px); font-weight: 750; margin: 24px 0; overflow-wrap: anywhere; }
+    .result { min-height: 30px; margin: 16px 0; font-weight: 650; }
+    .result.correct { background: #dff7dd; padding: 16px; border-radius: 12px; animation: celebrate .45s; }
+    .result.wrong { background: #fff0df; padding: 16px; border-radius: 12px; animation: arrive .3s; }
+    .correct { color: #087b52; } .wrong { color: #ba3131; }
+    input.correct { border-color: #087b52; } input.wrong { border-color: #ba3131; }
+    .word-list { padding: 0; list-style: none; }
+    .word-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 8px; border-bottom: 1px solid #e4e0d8; overflow-wrap: anywhere; animation: arrive .35s both; animation-delay: calc(var(--order, 0) * 25ms); transition: opacity .2s, background .2s; }
+    .word-list li:hover { background: #f5f2ff; }
+    .word-list li.excluded { background: #f0eee8; }
+    .word-list li.excluded label span { opacity: .45; text-decoration: line-through; }
+    .word-list label { display: flex; align-items: center; gap: 12px; margin: 0; cursor: pointer; flex: 1; min-width: 0; line-height: 1.5; }
+    input[type=checkbox] { flex: 0 0 22px; width: 22px; height: 22px; margin: 0; accent-color: #5146d9; cursor: pointer; }
+    .toolbar { margin: 20px 0; }
+    .word-list button { padding: 8px 12px; flex-shrink: 0; }
+    progress { width: 100%; accent-color: #4f46e5; height: 10px; }
+    #catImg { display: block; width: 150px; margin: 16px auto; animation: celebrate .7s both, float 4s .7s ease-in-out infinite; }
+    #finalPanel { animation: arrive .5s both; }
+    #quizPanel { background: #fff9e5; }
+    #selectionInfo { font-weight: bold; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes float { 0%, 100% { transform: translateY(0) rotate(4deg); } 50% { transform: translateY(-8px) rotate(-3deg); } }
+    @keyframes celebrate { 0% { opacity: 0; transform: scale(.85) rotate(-4deg); } 65% { transform: scale(1.04) rotate(2deg); } 100% { opacity: 1; transform: scale(1) rotate(0); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+    summary { cursor: pointer; font-weight: 650; } details[open] summary { margin-bottom: 20px; }
+    [hidden] { display: none !important; }
+    @media (max-width: 480px) { body { padding: 16px 10px; } .card { padding: 20px; } .actions button { flex: 1 1 auto; } }
   </style>
 </head>
 <body>
-  <div id="catResult">
-    <img id="catImg" src="" alt="Результат" />
-  </div>
-  <div class="card">
-    <h1>Введи слово по-английски</h1>
-
-    <select id="setSelector"></select>
-    <button id="startBtn">🚀 Старт</button>
-
-    <div class="word" id="ruWord"></div>
-    <button id="speakBtn">🔊 Произнести слово</button>
-    <input id="answer" type="text" placeholder="Напиши перевод" autocomplete="off" />
-    <button id="checkBtn">Проверить</button>
-    <div class="result" id="result"></div>
-    <button id="okBtn" class="okBtn" style="display:none;">ОК</button>
-    <button id="restartBtn" class="restartBtn" style="display:none;">Ещё раз все</button>
-    <div class="counter" id="counter"></div>
-    <div class="final-result" id="finalResult"></div>
-    <div id="addMsg" style="color:#059669; min-height:20px;"></div>
-
-    <details>
-      <summary>➕ Добавить слово</summary>
-      <div>
-        <input id="newRu" type="text" placeholder="Слово по-русски" />
-        <input id="newEn" type="text" placeholder="Перевод на английском" />
-        <button id="addWordBtn">Добавить</button>
+  <main>
+    <header class="card">
+      <div class="eyebrow">SPOTLIGHT 3 · PART 1</div>
+      <h1>Учим слова шаг за шагом</h1>
+      <p class="muted">Твоя маленькая языковая мастерская. Выбери тему, собери набор и проверь себя!</p>
+      <label for="moduleSelector">Модуль</label>
+      <select id="moduleSelector"></select>
+      <label for="topicSelector">Тема</label>
+      <select id="topicSelector"></select>
+      <p id="selectionInfo" class="muted"></p>
+      <div class="actions">
+        <button id="learnBtn" class="secondary">Посмотреть слова</button>
+        <button id="startBtn">Тренироваться</button>
       </div>
+    </header>
+    <section class="card" id="studyPanel" aria-labelledby="studyTitle">
+      <h2 id="studyTitle">Собери свою тренировку</h2>
+      <p class="muted">Сними галочки со слов, которые пока не нужны. Можно послушать перевод или добавить свои слова ниже. Регистр и лишние пробелы в ответах не важны.</p>
+      <div class="actions toolbar">
+        <button id="selectAllBtn" class="secondary">Выбрать все</button>
+        <button id="clearAllBtn" class="secondary">Снять все</button>
+      </div>
+      <ul id="dictionary" class="word-list"></ul>
+      <p id="speechNotice" class="muted" hidden>В этом браузере озвучивание недоступно.</p>
+    </section>
+    <section class="card" id="quizPanel" aria-labelledby="quizTitle" hidden>
+      <h2 id="quizTitle">Проверим себя</h2>
+      <p id="counter" class="muted"></p>
+      <progress id="progress" value="0" max="1" aria-label="Прогресс тренировки"></progress>
+      <div id="question">
+        <div class="word" id="ruWord"></div>
+        <label for="answer">Перевод на английском</label>
+        <input id="answer" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="result" />
+        <div class="actions">
+          <button id="checkBtn">Проверить</button>
+          <button id="speakBtn" class="secondary">Послушать</button>
+          <button id="nextBtn" hidden>Дальше</button>
+        </div>
+      </div>
+      <div id="result" class="result" role="status"></div>
+      <div id="finalPanel" hidden>
+        <img id="catImg" alt="Кот поздравляет с завершением тренировки" />
+        <h2 id="finalScore" tabindex="-1"></h2>
+        <ul id="finalWords" class="word-list"></ul>
+        <div class="actions">
+          <button id="repeatBtn">Повторить ошибки</button>
+          <button id="restartBtn" class="secondary">Ещё раз все</button>
+        </div>
+      </div>
+    </section>
+    <details class="card" id="customDetails">
+      <summary>Добавить свои слова в тему</summary>
+      <p class="muted">Новые слова дополнят выбранный модуль и сохранятся в этом браузере. Во время тренировки они попадут в следующий запуск.</p>
+      <form id="addForm">
+        <label for="addTopic">Тема в выбранном модуле</label>
+        <select id="addTopic"></select>
+        <label for="newRu">Слово по-русски</label>
+        <input id="newRu" required maxlength="100" />
+        <label for="newEn">Перевод на английском</label>
+        <input id="newEn" required maxlength="100" autocapitalize="none" />
+        <button type="submit">Добавить в тему</button>
+      </form>
+      <p id="addMsg" role="status" class="muted"></p>
     </details>
-  </div>
-
-  <script>
-    const cats = {
-      perfect: "cat-happy.png",
-      good: "cat-ok.png",
-      bad: "cat-sad.png"
-    };
-    
-    const catResult = document.getElementById('catResult');
-    const catImg = document.getElementById('catImg');
-    function hideCat() {
-      catResult.classList.remove('show');
-    }
-    catResult.addEventListener('click', hideCat);
-    const sets = {
-      "Еда": [
-        { ru: "бургеры", en: "burgers" },
-        { ru: "чипсы", en: "chips" },
-        { ru: "яблоки", en: "apples" },
-        { ru: "сэндвичи", en: "sandwiches" },
-        { ru: "бананы", en: "bananas" }
-      ],
-      "Еда-2": [
-        { ru: "мороженое", en: "ice cream" },
-        { ru: "пицца", en: "pizza" },
-        { ru: "молоко", en: "milk" },
-        { ru: "апельсиновый сок", en: "orange juice" },
-        { ru: "шоколадный торт", en: "chocolate cake" }
-      ],
-      "Цифры": [
-        { ru: "один", en: "one" },
-        { ru: "два", en: "two" },
-        { ru: "три", en: "three" },
-        { ru: "четыре", en: "four" },
-        { ru: "пять", en: "five" },
-        { ru: "шесть", en: "six" },
-        { ru: "семь", en: "seven" },
-        { ru: "восемь", en: "eight" },
-        { ru: "девять", en: "nine" },
-        { ru: "десять", en: "ten" }
-      ],
-      "Животные": [
-        { ru: "Рыба", en: "fish" },
-        { ru: "Птица", en: "bird" },
-        { ru: "Лошадь", en: "horse" },
-        { ru: "Лягушка", en: "frog" },
-        { ru: "Шимпанзе", en: "chimp" }
-      ],
-      "Действия": [
-        { ru: "Плавать", en: "swim" },
-        { ru: "Петь", en: "sing" },
-        { ru: "Бежать", en: "run" },
-        { ru: "Прыгать", en: "jump" },
-        { ru: "Танцевать", en: "dance" }
-      ],
-      "8a - I can jump": [
-        { ru: "Лазать", en: "climb" },
-        { ru: "Летать", en: "fly" },
-        { ru: "Мальчик", en: "boy" },
-        { ru: "Девочка", en: "girl" },
-      ],  
-      "9a - At the circus": [
-        { ru: "Клоун", en: "clown" },
-        { ru: "Цирк", en: "circus" },
-        { ru: "Фокусник, волшебник", en: "magician" },
-        { ru: "Качаться", en: "swing" },
-      ],  
-      "10a - My toys": [
-        { ru: "Плюшевый мишка", en: "teddy bear" },
-        { ru: "Игрушечный солдатик", en: "toy soldier" },
-        { ru: "Балерина", en: "ballerina" },
-        { ru: "Полка", en: "shelf" },
-        { ru: "Ящик для игрушек", en: "toy box" },
-        { ru: "На", en: "on" },
-        { ru: "Под", en: "under" },
-        { ru: "В", en: "in" },
-      ],  
-      "11a - Parts of the face": [
-        { ru: "Темные волосы", en: "dark hair" },
-        { ru: "Нос", en: "nose" },
-        { ru: "Глаза", en: "eyes" },
-        { ru: "Рот", en: "mouth" },
-        { ru: "Уши", en: "ears" },
-      ],  
-      "Собрать свой словарь": []
-    };
-
-    let words = [];
-    let shuffledWords = [];
-    let index = 0;
-    let correct = 0;
-    let currentSet = Object.keys(sets)[0];
-    let results = [];
-
-    const setSelector = document.getElementById('setSelector');
-    const startBtn = document.getElementById('startBtn');
-    const ruWord = document.getElementById('ruWord');
-    const answer = document.getElementById('answer');
-    const result = document.getElementById('result');
-    const counter = document.getElementById('counter');
-    const finalResult = document.getElementById('finalResult');
-    const checkBtn = document.getElementById('checkBtn');
-    const speakBtn = document.getElementById('speakBtn');
-    const okBtn = document.getElementById('okBtn');
-    const restartBtn = document.getElementById('restartBtn');
-    const addMsg = document.getElementById('addMsg');
-
-    const newRu = document.getElementById('newRu');
-    const newEn = document.getElementById('newEn');
-    const addWordBtn = document.getElementById('addWordBtn');
-
-    function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
-
-    Object.keys(sets).forEach(name => {
-      const option = document.createElement('option');
-      option.value = name;
-      option.textContent = name;
-      setSelector.appendChild(option);
-    });
-
-    setSelector.addEventListener('change', () => {
-      currentSet = setSelector.value;
-      words = sets[currentSet];
-      addMsg.textContent = '';
-
-      // Сбрасываем тест
-      shuffledWords = [];
-      index = 0;
-      correct = 0;
-      results = [];
-      finalResult.textContent = '';
-      restartBtn.style.display = 'none';
-      okBtn.style.display = 'none';
-      if (document.getElementById('repeatMistakesBtn')) document.getElementById('repeatMistakesBtn').style.display = 'none';
-
-      if (words.length === 0) {
-        ruWord.textContent = "📚 Добавьте слова, чтобы начать тренироваться";
-        answer.style.display = 'none';
-        checkBtn.style.display = 'none';
-        speakBtn.style.display = 'none';
-        startBtn.style.display = 'none';
-        counter.textContent = '';
-      } else {
-        startBtn.style.display = 'none';
-        shuffledWords = shuffle([...words]);
-        results = Array(shuffledWords.length).fill(null);
-        showWord();
-      }
-    });
-
-    startBtn.onclick = () => {
-      catResult.classList.remove('show');
-      if (words.length === 0) return;
-      startBtn.style.display = 'none';
-      shuffledWords = shuffle([...words]);
-      index = 0;
-      correct = 0;
-      results = Array(shuffledWords.length).fill(null);
-      finalResult.textContent = '';
-      addMsg.textContent = '';
-      restartBtn.style.display = 'none';
-      if (document.getElementById('repeatMistakesBtn')) document.getElementById('repeatMistakesBtn').style.display = 'none';
-      showWord();
-    };
-
-    function speak(text) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.9;
-      speechSynthesis.speak(utterance);
-    }
-
-    function showWord() {
-      const w = shuffledWords[index];
-      ruWord.textContent = w.ru;
-      answer.value = '';
-      answer.className = '';
-      result.textContent = '';
-      result.className = 'result';
-
-      if (shuffledWords.length > 0) {
-        counter.textContent = `Правильно: ${correct} / ${shuffledWords.length}`;
-      } else {
-        counter.textContent = '';
-      }
-
-      finalResult.textContent = '';
-      speakBtn.style.display = 'inline-block';
-      answer.style.display = 'block';
-      checkBtn.style.display = 'inline-block';
-      okBtn.style.display = 'none';
-      answer.focus();
-      speakBtn.onclick = () => speak(w.en);
-    }
-
-    function checkAnswer() {
-      const user = answer.value.trim().toLowerCase();
-      const correctAnswer = shuffledWords[index].en;
-      if (!user) return;
-      if (user === correctAnswer) {
-        result.textContent = '✅ Правильно!';
-        result.classList.add('correct-effect');
-        answer.classList.add('correct');
-        if (results[index] !== true) correct++;
-        results[index] = true;
-        setTimeout(nextWord, 1000);
-      } else {
-        result.innerHTML = `❌ Ошибка. Правильно: <span class='wrong-answer'>${correctAnswer}</span>`;
-        answer.classList.add('wrong');
-        results[index] = false;
-        checkBtn.style.display = 'none';
-        okBtn.style.display = 'inline-block';
-      }
-    }
-
-    function nextWord() {
-      index++;
-      checkBtn.disabled = false;
-      okBtn.style.display = 'none';
-      answer.className = '';
-      if (index < shuffledWords.length) showWord();
-      else showFinalResult();
-    }
-
-    function showFinalResult() {
-      const percent = Math.round((correct / shuffledWords.length) * 100);
-      
-      let img = cats.bad;
-      if (percent === 100) img = cats.perfect;
-      else if (percent >= 70) img = cats.good;
-      
-      catImg.src = img;
-      catResult.classList.add('show');
-      ruWord.textContent = '🎉 Готово!';
-      answer.style.display = 'none';
-      checkBtn.style.display = 'none';
-      speakBtn.style.display = 'none';
-
-      let html = `<b>Итог: ${correct} из ${shuffledWords.length}</b><br>`;
-      shuffledWords.forEach((w, i) => {
-        const mark = results[i] ? '✅' : '❌';
-        const color = results[i] ? 'green' : 'red';
-        html += `<span style="color:${color}">${mark} ${w.ru} → ${w.en}</span><br>`;
-      });
-      finalResult.innerHTML = html;
-
-      counter.textContent = '';
-      restartBtn.style.display = 'inline-block';
-      restartBtn.textContent = 'Ещё раз все';
-
-      if (results.includes(false)) {
-        let btn = document.getElementById('repeatMistakesBtn');
-        if (!btn) {
-          btn = document.createElement('button');
-          btn.id = 'repeatMistakesBtn';
-          btn.textContent = 'Повторить ошибки';
-          btn.className = 'restartBtn';
-          btn.style.background = '#f59e0b';
-          btn.onclick = repeatMistakes;
-          restartBtn.parentNode.insertBefore(btn, restartBtn.nextSibling);
-        }
-        btn.style.display = 'inline-block';
-      }
-    }
-
-    function repeatMistakes() {
-      catResult.classList.remove('show');
-      shuffledWords = shuffledWords.filter((_, i) => results[i] === false);
-      results = Array(shuffledWords.length).fill(null);
-      index = 0;
-      correct = 0;
-      finalResult.textContent = '';
-      restartBtn.style.display = 'none';
-      document.getElementById('repeatMistakesBtn').style.display = 'none';
-      showWord();
-    }
-
-    addWordBtn.onclick = () => {
-      const ru = newRu.value.trim();
-      const en = newEn.value.trim().toLowerCase();
-      if (!ru || !en) return;
-      
-      words.push({ ru, en });
-      sets[currentSet] = words;
-      shuffledWords = shuffle([...words]);
-      newRu.value = '';
-      newEn.value = '';
-      addMsg.textContent = `Слово "${ru} → ${en}" добавлено ✅`;
-
-      if (words.length === 1) {
-        startBtn.style.display = 'inline-block';
-        ruWord.textContent = '📚 Добавьте слова, чтобы начать тренироваться';
-        answer.style.display = 'none';
-        checkBtn.style.display = 'none';
-        speakBtn.style.display = 'none';
-      }
-    };
-
-    restartBtn.onclick = () => startBtn.click();
-    checkBtn.onclick = checkAnswer;
-    okBtn.onclick = nextWord;
-
-    answer.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        if (checkBtn.style.display !== 'none') checkAnswer();
-        else if (okBtn.style.display !== 'none') nextWord();
-        else if (restartBtn.style.display !== 'none') startBtn.click();
-      }
-    });
-
-    // стартовый набор
-    currentSet = Object.keys(sets)[0];
-    words = sets[currentSet];
-    setSelector.value = currentSet;
-
-    if (words.length === 0) {
-      ruWord.textContent = "📚 Добавьте слова, чтобы начать тренироваться";
-      answer.style.display = 'none';
-      checkBtn.style.display = 'none';
-      speakBtn.style.display = 'none';
-      counter.textContent = '';
-    } else {
-      shuffledWords = shuffle([...words]);
-      index = 0;
-      correct = 0;
-      results = Array(shuffledWords.length).fill(null);
-      showWord();
-    }
-  </script>
-
+    <footer class="muted">Тематический тренажёр по мотивам Spotlight 3, часть 1, модули 1–4. Списки для практики не заменяют словарь конкретного издания учебника.</footer>
+  </main>
+  <script src="spotlight.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
